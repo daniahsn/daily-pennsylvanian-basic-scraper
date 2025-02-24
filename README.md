@@ -6,7 +6,6 @@ This project scrapes the **main headline** from The Daily Pennsylvanian homepage
 ---
 
 ## **🔄 Recent Modifications**  
-### **1️⃣ Added Author Extraction by Following the Headline Link**  
 #### **What Changed?**  
 - Instead of just **extracting the headline**, the scraper now **follows the article link** to fetch the **author(s)**.  
 - Extracts **multiple authors** if available.  
