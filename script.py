@@ -24,17 +24,52 @@ def scrape_data_point():
         "User-Agent": "cis3500-scraper"
     }
 
-    req = requests.get("https://www.thedp.com", headers=headers)
+    homepage_url = "https://www.thedp.com"
+    req = requests.get(homepage_url, headers=headers)
     loguru.logger.info(f"Request URL: {req.url}")
     loguru.logger.info(f"Request status code: {req.status_code}")
 
-    if req.ok:
-        soup = bs4.BeautifulSoup(req.text, "html.parser")
-        target_element = soup.find("a", class_="frontpage-link")
-        data_point = "" if target_element is None else target_element.text
-        loguru.logger.info(f"Data point: {data_point}")
-        return data_point
 
+    
+    if not req.ok:
+        loguru.logger.warning("Failed to fetch homepage")
+        return {"headline": "", "authors": []}
+
+    soup = bs4.BeautifulSoup(req.text, "html.parser")
+    target_element = soup.find("a", class_="frontpage-link large-link")
+
+    if target_element is None:
+        loguru.logger.warning("No main headline found!")
+        return {"headline": "", "authors": []}
+
+    headline = target_element.text.strip()
+    article_url = homepage_url + target_element["href"]  # Get full article URL
+
+    loguru.logger.info(f"Headline: {headline}")
+    loguru.logger.info(f"Article URL: {article_url}")
+
+    # Request the full article page
+    article_req = requests.get(article_url, headers=headers)
+
+    if not article_req.ok:
+        loguru.logger.warning("Failed to fetch the article page!")
+        return {"headline": headline, "authors": []}
+
+    # Parse article page to find author(s)
+    article_soup = bs4.BeautifulSoup(article_req.text, "html.parser")
+
+    # Find the <span class="byline"> and extract all <a class="author-name">
+    byline_span = article_soup.find("span", class_="byline")
+    
+    if byline_span:
+        author_elements = byline_span.find_all("a", class_="author-name")
+        authors = [author.text.strip() for author in author_elements]
+    else:
+        authors = []
+
+    loguru.logger.info(f"Authors: {authors}")
+
+    return {"headline": headline, "authors": authors}
 
 if __name__ == "__main__":
 
@@ -69,6 +104,7 @@ if __name__ == "__main__":
         dem.save()
         loguru.logger.info("Saved daily event monitor")
 
+    #OTHER FUNC
     def print_tree(directory, ignore_dirs=[".git", "__pycache__"]):
         loguru.logger.info(f"Printing tree of files/dirs at {directory}")
         for root, dirs, files in os.walk(directory):
