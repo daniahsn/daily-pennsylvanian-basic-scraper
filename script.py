@@ -43,8 +43,14 @@ def scrape_data_point():
         return {"headline": "", "authors": []}
 
     headline = target_element.text.strip()
-    article_url = homepage_url + target_element["href"]  # Get full article URL
+    article_href = target_element["href"]
+    
 
+    if article_href.startswith("http"):
+        article_url = article_href
+    else:
+        article_url = homepage_url + article_href
+    
     loguru.logger.info(f"Headline: {headline}")
     loguru.logger.info(f"Article URL: {article_url}")
 
