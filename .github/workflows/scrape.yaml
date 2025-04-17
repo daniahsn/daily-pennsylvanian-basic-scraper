@@ -36,13 +36,11 @@ jobs:
         run: |
           pipenv --python 3.9
 
-      - name: 🔄 Check pipenv cache before installing dependencies
-        id: cache-pipenv
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/virtualenvs
-          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
-
+      - name: 🛠 Ensure virtual environment exists
+        run: |
+          pipenv --rm || echo "No existing virtual environment to remove."
+          pipenv --python 3.9
+      
       - name: 🛠 Install dependencies
         run: |
           pipenv --clear
