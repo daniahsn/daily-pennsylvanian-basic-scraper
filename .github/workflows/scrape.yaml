@@ -32,6 +32,10 @@ jobs:
         run: |
           python -m pip install --upgrade pipenv wheel
 
+      - name: 🛠 Ensure virtual environment exists
+        run: |
+          pipenv --python 3.9
+
       - name: 🔄 Check pipenv cache before installing dependencies
         id: cache-pipenv
         uses: actions/cache@v4
@@ -41,10 +45,9 @@ jobs:
 
       - name: 🛠 Install dependencies
         run: |
-          touch Pipfile
           pipenv --clear
           pipenv install --deploy --dev
-      
+
       - name: 🛠 Check virtualenv path
         run: |
           pipenv --venv || echo "Virtual environment not found!"
