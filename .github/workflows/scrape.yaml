@@ -42,7 +42,12 @@ jobs:
       - name: 🛠 Install dependencies
         run: |
           touch Pipfile
+          pipenv --clear
           pipenv install --deploy --dev
+      
+      - name: 🛠 Check virtualenv path
+        run: |
+          pipenv --venv || echo "Virtual environment not found!"
 
       - name: 🕵️‍♂️ Scrape content and output
         run: |
